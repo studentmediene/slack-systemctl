@@ -1,3 +1,11 @@
 DEBUG: False
 
 SLACK_TOKEN: "xoxb-123456789abcdefghijklmnopqrstuvwxyz"
+
+# Comment out to print to stdout instead
+LOGFILE: "/opt/SlackBot/log/log.log"
+
+# See https://docs.python.org/3/library/logging.html#logging-levels for table
+# of values you can use
+LOGLEVEL: 30
+
