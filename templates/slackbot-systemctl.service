@@ -1,0 +1,13 @@
+[Unit]
+Description=Slackbot for interacting with a unit in systemd.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/make -C "{{ path }}" user-run
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

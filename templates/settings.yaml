@@ -1,0 +1,26 @@
+# Configuration for slack-systemctl
+
+# Unit to interact with
+unit: "{{ unit }}"
+
+# whitelist of systemctl commands to allow
+allowed_commands:
+  {% for cmd in allowed_commands -%}
+  - {{ cmd }}
+  {% endfor %}
+
+# Activation word to listen for in Slack.
+# Messages that start with this, will be processed by
+# this Slackbot. Ensure it is something no one writes
+# by accident.
+keyword: "{{ keyword }}"
+
+# Help message
+help: |
+{{ help|indent(2, true) }}
+
+# Name of the Slack channel to restrain slack-systemctl requests to
+# (while you can initiate action through any channel in which the
+# bot is a member, its reply will be made on this channel, to ensure
+# nothing goes under the radar).
+slack_channel: "{{ slack_channel }}"

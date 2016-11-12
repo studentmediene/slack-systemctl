@@ -1,0 +1,13 @@
+# Configuration file for the SlackBot framework
+
+# Turn debugging on or off
+DEBUG: false
+
+# Slack API Token
+SLACK_TOKEN: "{{ slack_token }}"
+
+# Set to true to run as daemon
+DAEMON: false
+
+# Path to the logfile
+LOGFILE: "{{ logfile }}"
