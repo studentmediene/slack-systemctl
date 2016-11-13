@@ -24,14 +24,14 @@ is_root:
 	@test `id -u` -eq 0
 
 # Deploying unit file, must be run as sudo
-/etc/systemd/system/$(SYSTEMD_UNITFILE): $(SYSTEMD_UNITFILE) is_root
+/etc/systemd/system/$(SYSTEMD_UNITFILE): $(SYSTEMD_UNITFILE) | is_root
 	cp "$<" "$@"
 
 .PHONY: deploy
 deploy: /etc/systemd/system/$(SYSTEMD_UNITFILE) $(LOG_DIR) is_root
 	systemctl enable $(SYSTEMD_UNITFILE)
 
-$(LOG_DIR): is_root
+$(LOG_DIR): | is_root
 	mkdir $(LOG_DIR)
 	chown $(TARGET_USER): $(LOG_DIR)
 	chmod 755 $(LOG_DIR)
