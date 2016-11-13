@@ -67,32 +67,35 @@ outputs = []
 def process_message(data):
     global outputs
     to_output = []
-    if data['text'].startswith(KEYWORD):
-        if data['text'].strip() in (KEYWORD, KEYWORD + ' help'):
-            to_output.append("\n".join([
-                "Usage: `%s [%s]`" % (KEYWORD, '|'.join(ALLOWED_COMMANDS)),
-                HELP,
-            ]))
-        else:
-            command = data['text'].strip().split(' ')[1].lower()
-            if command in ALLOWED_COMMANDS:
-                # Run the command
-                result = subprocess.run(
-                    # Warning: Make sure you update generate_sudoers_config.py if you
-                    # make changes to the following line. Any changes must then be applied
-                    # manually by the user to the sudoers file when deploying.
-                    ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT
-                )
-                stdout_str = result.stdout.decode("utf-8")
-                output_line = ("Output:\n```%s```" % stdout_str) if stdout_str \
-                    else "No output."
-                to_output.append("`%s` exited with exit code %s (0 means "
-                    "OK).\n\n%s" % (" ".join(result.args), result.returncode,
-                    output_line))
+    try:
+        if data['text'].startswith(KEYWORD):
+            if data['text'].strip() in (KEYWORD, KEYWORD + ' help'):
+                to_output.append("\n".join([
+                    "Usage: `%s [%s]`" % (KEYWORD, '|'.join(ALLOWED_COMMANDS)),
+                    HELP,
+                ]))
             else:
-                to_output.append("Did not recognize %s.\nWrite `%s help` for"
-                                 " usage." % (command, KEYWORD))
+                command = data['text'].strip().split(' ')[1].lower()
+                if command in ALLOWED_COMMANDS:
+                    # Run the command
+                    result = subprocess.run(
+                        # Warning: Make sure you update generate_sudoers_config.py if you
+                        # make changes to the following line. Any changes must then be applied
+                        # manually by the user to the sudoers file when deploying.
+                        ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT
+                    )
+                    stdout_str = result.stdout.decode("utf-8")
+                    output_line = ("Output:\n```%s```" % stdout_str) if stdout_str \
+                        else "No output."
+                    to_output.append("`%s` exited with exit code %s (0 means "
+                        "OK).\n\n%s" % (" ".join(result.args), result.returncode,
+                        output_line))
+                else:
+                    to_output.append("Did not recognize %s.\nWrite `%s help` for"
+                                     " usage." % (command, KEYWORD))
+    except Exception as e:
+        to_output.append(str(e))
     for text in to_output:
         send_to_slack(text)
