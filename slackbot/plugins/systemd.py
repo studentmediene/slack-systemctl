@@ -77,20 +77,26 @@ def process_message(data):
             else:
                 command = data['text'].strip().split(' ')[1].lower()
                 if command in ALLOWED_COMMANDS:
-                    # Run the command
-                    result = subprocess.run(
-                        # Warning: Make sure you update generate_sudoers_config.py if you
-                        # make changes to the following line. Any changes must then be applied
-                        # manually by the user to the sudoers file when deploying.
-                        ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT
-                    )
-                    stdout_str = result.stdout.decode("utf-8")
+                    # Warning: Make sure you update generate_sudoers_config.py if you
+                    # make changes to the following line. Any changes must then be applied
+                    # manually by the user to the sudoers file when deploying.
+                    final_cmd = ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT]
+                    try:
+                        # Run the command
+                        result = subprocess.check_output(
+                            final_cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT
+                        )
+                        returncode = 0
+                    except subprocess.CalledProcessError as e:
+                        result = e.output
+                        returncode = e.returncode
+                    stdout_str = result.decode("utf-8")
                     output_line = ("Output:\n```%s```" % stdout_str) if stdout_str \
                         else "No output."
                     to_output.append("`%s` exited with exit code %s (0 means "
-                        "OK).\n\n%s" % (" ".join(result.args), result.returncode,
+                        "OK).\n\n%s" % (" ".join(final_cmd), returncode,
                         output_line))
                 else:
                     to_output.append("Did not recognize %s.\nWrite `%s help` for"
