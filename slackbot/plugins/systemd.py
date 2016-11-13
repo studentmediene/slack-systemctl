@@ -30,23 +30,23 @@ import subprocess
 def parse_config(configfile, slackbotfile):
     with open(configfile) as f:
         doc = yaml.load(f)
-    unit = doc["unit"]
-    allowed_commands = [cmd.lower() for cmd in doc["allowed_commands"]]
-    keyword = doc["keyword"]
-    help_message = doc["help"]
-    channel = doc["slack_channel"]
+    units = doc
 
     with open(slackbotfile) as f:
         doc2 = yaml.load(f)
     token = doc2["SLACK_TOKEN"]
 
-    return unit, allowed_commands, keyword, help_message, channel, token
+    return units, token
 
 
-def send_to_slack(message):
-    options = SLACK_OPTIONS.copy()
-    if options['channel']:
-        options['text'] = message
+def send_to_slack(message, channel):
+    if channel:
+        options = {
+            "as_user": True,
+            "channel": channel,
+            "token": TOKEN,
+            "text": message,
+        }
         r = requests.get("https://slack.com/api/chat.postMessage", params=options,
                          timeout=10.0)
         r.raise_for_status()
@@ -55,14 +55,7 @@ def send_to_slack(message):
         outputs.append(message)
 
 
-UNIT, ALLOWED_COMMANDS, KEYWORD, HELP, CHANNEL, TOKEN = parse_config("settings.yaml",
-                                                               "settings_slackbot.yaml")
-
-SLACK_OPTIONS = {
-    "as_user": True,
-    "channel": CHANNEL,
-    "token": TOKEN,
-}
+UNITS, TOKEN = parse_config("settings.yaml", "settings_slackbot.yaml")
 
 outputs = []
 
@@ -70,20 +63,30 @@ outputs = []
 def process_message(data):
     global outputs
     to_output = []
+    channel = ""
     try:
-        if data['text'].startswith(KEYWORD):
-            if data['text'].strip() in (KEYWORD, KEYWORD + ' help'):
+        # Did we match anything at all? (Most messages won't match, so don't spend time figuring out what matched)
+        if data['text'].startswith(UNITS.keys()):
+            # Which unit did we match? Compare to the longest key firsts, to ensure we don't match a substring of another unit.
+            keyword = [keyword for keyword in sorted(UNITS.keys(), key=len, reverse=True) if data['text'].startswith(keyword)][0]
+            unit = UNITS[keyword]
+            channel = unit['slack_channel']
+            # Was any command given, other than help?
+            if data['text'].strip() in (keyword, keyword + ' help'):
+                # Print help
                 to_output.append("\n".join([
-                    "Usage: `%s [%s]`" % (KEYWORD, '|'.join(ALLOWED_COMMANDS)),
-                    HELP,
+                    "Usage: `%s [%s]`" % (keyword, '|'.join(unit['allowed_commands'])),
+                    unit['help'],
                 ]))
             else:
+                # Figure out which command
                 command = data['text'].strip().split(' ')[1].lower()
-                if command in ALLOWED_COMMANDS:
+                # Legal command?
+                if command in [cmd.lower() for cmd unit['allowed_commands']]:
                     # Warning: Make sure you update generate_sudoers_config.py if you
                     # make changes to the following line. Any changes must then be applied
                     # manually by the user to the sudoers file when deploying.
-                    final_cmd = ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT]
+                    final_cmd = ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, unit['unit']]
                     try:
                         # Run the command
                         result = subprocess.check_output(
@@ -94,11 +97,12 @@ def process_message(data):
                     except subprocess.CalledProcessError as e:
                         result = e.output
                         returncode = e.returncode
+                    # Formulate response on Slack
                     stdout_str = result.decode("utf-8")
                     output_line = ("\n\nOutput:\n```%s```" % stdout_str) if stdout_str \
                         else "" if returncode==0 else "\n\nNo output."
                     output_command = "`systemctl {command} {unit}`"\
-                        .format(command=command, unit=UNIT)
+                        .format(command=command, unit=unit['unit'])
                     status_msg = "Successfully executed " if returncode == 0 \
                         else "Error ({returncode}): could not run ".format(returncode=returncode)
                     to_output.append("{status_msg}{cmd}{output}".format(
@@ -107,8 +111,9 @@ def process_message(data):
                         output=output_line))
                 else:
                     to_output.append("Did not recognize %s.\nWrite `%s help` for"
-                                     " usage." % (command, KEYWORD))
+                                     " usage." % (command, keyword))
     except Exception as e:
+        # Make sure we output the error on Slack
         to_output.append(str(e))
     for text in to_output:
-        send_to_slack(text)
+        send_to_slack(text, channel)

@@ -30,47 +30,58 @@ choices = dict()
 
 
 if choice == "settings.yaml":
-    # UNIT
-    print("Which unit in systemd will you connect Slack to?")
-    choices['unit'] = input("> ")
+    add_more_units = True
+    while add_more_units:
+        unit = dict()
+        # UNIT
+        print("Which unit in systemd will you connect Slack to?")
+        unit['unit'] = input("> ")
 
-    # ALLOWED COMMANDS
-    print("Which systemctl commands shall be available to Slack?")
-    commands = {"status": True, "start": False, "stop": False,
-                "restart": False}
-    finished = False
-    while not finished:
-        print("\n".join(["[" + ("X" if commands[cmd] else " ") + "] " + cmd
-                         for cmd in commands]))
-        print("Toggle which command? (Leave blank when done)")
-        answer = input("> ").strip().lower()
-        if answer in commands:
-            commands[answer] = not commands[answer]
-        elif not answer:
-            finished = True
-        else:
-            print("Didn't recognize '%s'" % answer)
-    choices['allowed_commands'] = [cmd for cmd in commands if commands[cmd]]
+        # ALLOWED COMMANDS
+        print("Which systemctl commands shall be available to Slack?")
+        commands = {"status": True, "start": False, "stop": False,
+                    "restart": False}
+        finished = False
+        while not finished:
+            print("\n".join(["[" + ("X" if commands[cmd] else " ") + "] " + cmd
+                             for cmd in commands]))
+            print("Toggle which command? (Leave blank when done)")
+            answer = input("> ").strip().lower()
+            if answer in commands:
+                commands[answer] = not commands[answer]
+            elif not answer:
+                finished = True
+            else:
+                print("Didn't recognize '%s'" % answer)
+        unit['allowed_commands'] = [cmd for cmd in commands if commands[cmd]]
 
-    # KEYWORD
-    print("What must all messages for this Slackbot start with?")
-    print("It should be something that you don't write by accident.")
-    default_keyword = "." + choices['unit']
-    print("Default: %s" % default_keyword)
-    choices['keyword'] = input("> ") or default_keyword
+        # KEYWORD
+        print("What must all messages for this Slackbot start with?")
+        print("It should be something that you don't write by accident.")
+        default_keyword = "." + unit['unit']
+        print("Default: %s" % default_keyword)
+        keyword = input("> ") or default_keyword
 
-    # HELP
-    print("Describe this Slackbot. End the description with a blank line.")
-    help_lines = []
-    answer = input("> ")
-    while answer:
-        help_lines.append(answer)
+        # HELP
+        print("Describe this Slackbot. End the description with a blank line.")
+        help_lines = []
         answer = input("> ")
-    choices['help'] = "\n".join(help_lines)
+        while answer:
+            help_lines.append(answer)
+            answer = input("> ")
+        unit['help'] = "\n".join(help_lines)
 
-    # SLACK_CHANNEL
-    print("On which channel in Slack should messages be posted?")
-    choices['slack_channel'] = input("> ")
+        # SLACK_CHANNEL
+        print("On which channel in Slack should messages be posted?")
+        print("Leave blank to post to whichever channel the user posted in.")
+        unit['slack_channel'] = input("> ")
+
+        # Add unit
+        choices[keyword] = unit
+
+        # More units?
+        print("Do you want to connect Slack to more units? [yN]")
+        add_more_units = True if input("> ").lower().strip() in ("y", "yes") else False
 
 else:
     # SLACK
