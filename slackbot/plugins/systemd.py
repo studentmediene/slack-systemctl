@@ -44,12 +44,15 @@ def parse_config(configfile, slackbotfile):
 
 
 def send_to_slack(message):
-    options = SLACK_OPTIONS
-    options['text'] = message
-    r = requests.get("https://slack.com/api/chat.postMessage", params=options,
-                     timeout=10.0)
-    r.raise_for_status()
-    r.close()
+    options = SLACK_OPTIONS.copy()
+    if options['channel']:
+        options['text'] = message
+        r = requests.get("https://slack.com/api/chat.postMessage", params=options,
+                         timeout=10.0)
+        r.raise_for_status()
+        r.close()
+    else:
+        outputs.append(message)
 
 
 UNIT, ALLOWED_COMMANDS, KEYWORD, HELP, CHANNEL, TOKEN = parse_config("settings.yaml",
