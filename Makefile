@@ -32,7 +32,7 @@ deploy: /etc/systemd/system/$(SYSTEMD_UNITFILE) $(LOG_DIR) is_root
 	systemctl enable $(SYSTEMD_UNITFILE)
 
 $(LOG_DIR): | is_root
-	mkdir $(LOG_DIR)
+	mkdir -p $(LOG_DIR)
 	chown $(TARGET_USER): $(LOG_DIR)
 	chmod 755 $(LOG_DIR)
 
