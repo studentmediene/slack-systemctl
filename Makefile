@@ -1,24 +1,40 @@
+# User to run as
+TARGET_USER = slack-systemctl
+# Directory to write logs to
+LOG_DIR = "/var/log/slack-systemctl"
+
 # Run/deploy slack-systemctl
 .PHONY: run
-run: settings.yaml settings_slackbot.yaml .installed_requirements
+run: settings.yaml settings_slackbot.yaml
+	./confirm_is_run_as.sh $(TARGET_USER)
+	./confirm_file_permissions.sh
 	venv/bin/python slackbot/rtmbot.py -c settings_slackbot.yaml
 
 # Configuration files, can be generated through helpful user interface
 settings.yaml settings_slackbot.yaml: | .installed_requirements
-	venv/bin/python generate_settings_file.py "$@"
+	venv/bin/python generate_settings_file.py "$@" --log-dir $(LOG_DIR)
 
 SYSTEMD_UNITFILE = slack-systemctl.service
 $(SYSTEMD_UNITFILE) : templates/$(SYSTEMD_UNITFILE) | .installed_requirements
 	venv/bin/python generate_unit_file.py "$@"
 
-# Deploying unit/job files, must be run as sudo
-# The SystemD unit file
-/etc/systemd/system/$(SYSTEMD_UNITFILE): $(SYSTEMD_UNITFILE)
+# Just test that make is run as root. Succeeds if it is, fails if not.
+.PHONY: is_root
+is_root:
+	@test `id -u` -eq 0
+
+# Deploying unit file, must be run as sudo
+/etc/systemd/system/$(SYSTEMD_UNITFILE): $(SYSTEMD_UNITFILE) is_root
 	cp "$<" "$@"
 
 .PHONY: deploy
-deploy-systemd: /etc/systemd/system/$(SYSTEMD_UNITFILE)
+deploy: /etc/systemd/system/$(SYSTEMD_UNITFILE) $(LOG_DIR) is_root
 	systemctl enable $(SYSTEMD_UNITFILE)
+
+$(LOG_DIR): is_root
+	mkdir $(LOG_DIR)
+	chown $(TARGET_USER): $(LOG_DIR)
+	chmod 755 $(LOG_DIR)
 
 # Virtual environment
 venv:
@@ -34,6 +50,8 @@ venv:
 # Make the application ready for deployment
 .PHONY: setup
 setup: .installed_requirements settings.yaml settings_slackbot.yaml
+	id -u $(TARGET_USER) > /dev/null 2>&1 || (echo "Setting up the user, which requires root privileges." && sudo adduser --system --no-create-home --group --disabled-login $(TARGET_USER))
+
 
 # Remove any local user-files from the folder
 .PHONY: wipe

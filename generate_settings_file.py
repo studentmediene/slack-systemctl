@@ -15,8 +15,14 @@ parser.add_argument(
     help="The kind of settings file you want to create."
 )
 
+parser.add_argument(
+    "--log-dir",
+    help="Directory to store logs in."
+)
+
 parsed = parser.parse_args()
 choice = parsed.application
+log_dir = parsed.log_dir
 systemd_configfile = os.path.join(os.path.dirname(__file__), "settings.yaml")
 slackbot_configfile = os.path.join(os.path.dirname(__file__), "settings_slackbot.yaml")
 
@@ -72,9 +78,7 @@ else:
     choices['slack_token'] = input("> ")
 
     # LOGFILE
-    print("Where would you like the logfile to be?")
-    print("Must be writable by the user SlackBot will run as.")
-    choices['logfile'] = input("> ")
+    choices['logfile'] = log_dir + "/application.log"
 
 print("Generating the file...")
 

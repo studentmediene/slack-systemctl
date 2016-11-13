@@ -6,7 +6,7 @@ Control a unit file from Slack
 ### Setup
 
 1. Run `git clone URL`.
-2. Run `cd FOLDER`.
+2. Run `cd slack-systemctl`.
 3. Run `make setup` and follow the prompts.
 4. Run `make sudoers`.
 5. Run `sudoedit` and paste the output of the previous command somewhere in the configuration. Save and close.
