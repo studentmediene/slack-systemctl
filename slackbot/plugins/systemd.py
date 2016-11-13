@@ -78,7 +78,7 @@ def process_message(data):
             if command in ALLOWED_COMMANDS:
                 # Run the command
                 result = subprocess.run(
-                    ["systemctl", command, UNIT],
+                    ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT
                 )

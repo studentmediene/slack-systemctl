@@ -52,6 +52,9 @@ venv:
 setup: .installed_requirements settings.yaml settings_slackbot.yaml
 	id -u $(TARGET_USER) > /dev/null 2>&1 || (echo "Setting up the user, which requires root privileges." && sudo adduser --system --no-create-home --group --disabled-login $(TARGET_USER))
 
+.PHONY: sudoers
+sudoers: .installed_requirements settings.yaml
+	@venv/bin/python generate_sudoers_config.py $(TARGET_USER)
 
 # Remove any local user-files from the folder
 .PHONY: wipe

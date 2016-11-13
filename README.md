@@ -9,7 +9,7 @@ Control a unit file from Slack
 2. Run `cd slack-systemctl`.
 3. Run `make setup` and follow the prompts.
 4. Run `make sudoers`.
-5. Run `sudoedit` and paste the output of the previous command somewhere in the configuration. Save and close.
+5. Run `visudo` and paste the output of the previous command somewhere in the configuration. Save and close.
 4. Run `sudo make deploy`.
 5. Run `sudo systemctl start slack-systemctl` to start the program
    (it should start automatically on startup).
