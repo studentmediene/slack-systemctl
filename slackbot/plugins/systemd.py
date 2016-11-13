@@ -85,7 +85,6 @@ def process_message(data):
                         # Run the command
                         result = subprocess.check_output(
                             final_cmd,
-                            stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT
                         )
                         returncode = 0
