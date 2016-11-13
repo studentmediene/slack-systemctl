@@ -19,7 +19,7 @@
         <bpmn:flowNodeRef>Task_1xabmo2</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_0fiihib" name="systemctl-request (privileged)&#10;">
+      <bpmn:lane id="Lane_0fiihib" name="sudo (privileged)&#10;">
         <bpmn:flowNodeRef>Task_1gsq8w8</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_177juqi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>ExclusiveGateway_1ihx8lp</bpmn:flowNodeRef>
@@ -70,11 +70,11 @@
       <bpmn:incoming>SequenceFlow_156rbc7</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_15c2hbl</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_1xabmo2" name="Transfer *command* and *unit* to systemctl-request">
+    <bpmn:serviceTask id="Task_1xabmo2" name="&#10;Use sudo &#10;to run systemctl *command* *unit*">
       <bpmn:incoming>SequenceFlow_0rg302f</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0vcxstg</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Task_177juqi" name="Check for permission to perform *command* on *unit*">
+    <bpmn:serviceTask id="Task_177juqi" name="Check for permission to run the given command">
       <bpmn:incoming>SequenceFlow_0vcxstg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1vbciea</bpmn:outgoing>
     </bpmn:serviceTask>
