@@ -1,12 +1,12 @@
 import argparse
 import yaml
 
-def get_command_alias(units):
+def get_command_alias(units, systemctl):
     commands = []
     for unit, unit_commands in units.items():
         for command in unit_commands:
-            commands.append('systemctl "{command}" "{unit}"'\
-                .format(command=command, unit=unit))
+            commands.append('{systemctl} "{command}" "{unit}"'\
+                .format(systemctl=systemctl, command=command, unit=unit))
     return "Cmnd_Alias SLACK_SYSTEMCTL_CMDS = {commands}"\
         .format(commands=", ".join(commands))
 
@@ -31,14 +31,19 @@ def parse_args():
         help="The user the application shall run as."
     )
 
+    parser.add_argument(
+        "systemctl_path",
+        help="Absolute path of systemctl."
+    )
+
     args = parser.parse_args()
-    return {"user": args.user}
+    return {"user": args.user, "systemctl": args.systemctl_path}
 
 def main():
     args = parse_args()
     units = parse_config("settings.yaml")
     print("Place the following somewhere in the sudoers file:\n")
-    print(get_command_alias(units))
+    print(get_command_alias(units, args['systemctl']))
     print(get_user_specification(args['user']))
 
 if __name__ == "__main__":

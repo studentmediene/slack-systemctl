@@ -54,7 +54,7 @@ setup: .installed_requirements settings.yaml settings_slackbot.yaml
 
 .PHONY: sudoers
 sudoers: .installed_requirements settings.yaml
-	@venv/bin/python generate_sudoers_config.py $(TARGET_USER)
+	@venv/bin/python generate_sudoers_config.py $(TARGET_USER) `which systemctl`
 
 # Remove any local user-files from the folder
 .PHONY: wipe
