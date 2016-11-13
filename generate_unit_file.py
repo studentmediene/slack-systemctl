@@ -7,6 +7,11 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
+    "user",
+    help="User to run the application as."
+)
+
+parser.add_argument(
     "output",
     nargs="?",
     type=argparse.FileType("w", encoding="UTF-8"),
@@ -23,6 +28,6 @@ try:
     template = env.get_template(
         "slack-systemctl.service"
     )
-    output.write(template.render(path=path))
+    output.write(template.render(path=path, user=args.user))
 finally:
     output.close()

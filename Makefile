@@ -16,7 +16,7 @@ settings.yaml settings_slackbot.yaml: | .installed_requirements
 
 SYSTEMD_UNITFILE = slack-systemctl.service
 $(SYSTEMD_UNITFILE) : templates/$(SYSTEMD_UNITFILE) | .installed_requirements
-	venv/bin/python generate_unit_file.py "$@"
+	venv/bin/python generate_unit_file.py $(TARGET_USER) "$@"
 
 # Just test that make is run as root. Succeeds if it is, fails if not.
 .PHONY: is_root

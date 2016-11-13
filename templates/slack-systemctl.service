@@ -5,8 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/make -C "{{ path }}" user-run
+ExecStart=/usr/bin/make -C "{{ path }}" run
 Restart=always
+User={{ user }}
 
 [Install]
 WantedBy=multi-user.target
