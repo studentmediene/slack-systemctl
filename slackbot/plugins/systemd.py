@@ -92,11 +92,16 @@ def process_message(data):
                         result = e.output
                         returncode = e.returncode
                     stdout_str = result.decode("utf-8")
-                    output_line = ("Output:\n```%s```" % stdout_str) if stdout_str \
-                        else "No output."
-                    to_output.append("`%s` exited with exit code %s (0 means "
-                        "OK).\n\n%s" % (" ".join(final_cmd), returncode,
-                        output_line))
+                    output_line = ("\n\nOutput:\n```%s```" % stdout_str) if stdout_str \
+                        else "" if returncode==0 else "\n\nNo output."
+                    output_command = "`systemctl {command} {unit}`"\
+                        .format(command=command, unit=UNIT)
+                    status_msg = "Successfully executed " if returncode == 0 \
+                        else "Error ({returncode}): could not run ".format(returncode=returncode)
+                    to_output.append("{status_msg}{cmd}{output}".format(
+                        status_msg=status_msg,
+                        cmd=output_command,
+                        output=output_line))
                 else:
                     to_output.append("Did not recognize %s.\nWrite `%s help` for"
                                      " usage." % (command, KEYWORD))
