@@ -5,7 +5,9 @@ def get_command_alias(units, systemctl):
     commands = []
     for unit, unit_commands in units.items():
         for command in unit_commands:
-            commands.append('{systemctl} "{command}" "{unit}"'\
+            # Warning: Make sure the following line is up-to-date to whatever
+            # is run in slackbot/plugins/systemd.py!
+            commands.append('{systemctl} --no-ask-password "{command}" "{unit}"'\
                 .format(systemctl=systemctl, command=command, unit=unit))
     return "Cmnd_Alias SLACK_SYSTEMCTL_CMDS = {commands}"\
         .format(commands=", ".join(commands))

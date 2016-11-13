@@ -78,6 +78,9 @@ def process_message(data):
             if command in ALLOWED_COMMANDS:
                 # Run the command
                 result = subprocess.run(
+                    # Warning: Make sure you update generate_sudoers_config.py if you
+                    # make changes to the following line. Any changes must then be applied
+                    # manually by the user to the sudoers file when deploying.
                     ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, UNIT],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT
