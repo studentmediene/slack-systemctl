@@ -30,7 +30,7 @@
     {% endfor %}
   
   # Help message
-  {% if help -%}
+  {% if unit.help -%}
   help: |
   {{ unit.help|indent(2, true) }}
   {% else -%}

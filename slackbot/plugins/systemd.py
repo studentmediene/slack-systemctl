@@ -36,7 +36,7 @@ def parse_config(configfile, slackbotfile):
         doc2 = yaml.load(f)
     token = doc2["SLACK_TOKEN"]
 
-    return {keyword.lower(), properties for keyword, properties in units.items()}, token
+    return {keyword.lower(): properties for keyword, properties in units.items()}, token
 
 
 def send_to_slack(message, channel):
@@ -84,7 +84,7 @@ def process_message(data):
                 # Figure out which command
                 command = data['text'].strip().split(' ')[1].lower()
                 # Legal command?
-                if command in [cmd.lower() for cmd unit['allowed_commands']]:
+                if command in [cmd.lower() for cmd in unit['allowed_commands']]:
                     # Warning: Make sure you update generate_sudoers_config.py if you
                     # make changes to the following line. Any changes must then be applied
                     # manually by the user to the sudoers file when deploying.
