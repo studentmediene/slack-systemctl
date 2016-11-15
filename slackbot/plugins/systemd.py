@@ -36,7 +36,7 @@ def parse_config(configfile, slackbotfile):
         doc2 = yaml.load(f)
     token = doc2["SLACK_TOKEN"]
 
-    return units, token
+    return {keyword.lower(), properties for keyword, properties in units.items()}, token
 
 
 def send_to_slack(message, channel):
@@ -59,16 +59,18 @@ UNITS, TOKEN = parse_config("settings.yaml", "settings_slackbot.yaml")
 
 outputs = []
 
+KEYWORDS = list(UNITS.keys())
+
 
 def process_message(data):
     global outputs
     to_output = []
     channel = ""
     try:
-        # Did we match anything at all? (Most messages won't match, so don't spend time figuring out what matched)
-        if data['text'].startswith(UNITS.keys()):
-            # Which unit did we match? Compare to the longest key firsts, to ensure we don't match a substring of another unit.
-            keyword = [keyword for keyword in sorted(UNITS.keys(), key=len, reverse=True) if data['text'].startswith(keyword)][0]
+        # Did we match?
+        user_splitted_text = data['text'].split()
+        keyword = user_splitted_text[0].lower() if user_splitted_text else ""
+        if keyword in KEYWORDS:
             unit = UNITS[keyword]
             channel = unit['slack_channel']
             # Was any command given, other than help?
