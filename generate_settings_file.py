@@ -4,6 +4,7 @@ import os.path
 import readline
 import subprocess
 
+readline.parse_and_bind("tab: complete")
 
 parser = argparse.ArgumentParser(
     description="Generate settings.yaml or settings_slackbot.yaml"
