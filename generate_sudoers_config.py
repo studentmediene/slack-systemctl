@@ -19,9 +19,7 @@ def get_user_specification(user):
 def parse_config(configfile):
     with open(configfile) as f:
         doc = yaml.load(f)
-    unit = doc["unit"]
-    allowed_commands = [cmd.lower() for cmd in doc["allowed_commands"]]
-    return {unit: allowed_commands}
+    return {unit['unit']: unit['allowed_commands'] for unit in doc.values()}
 
 def parse_args():
     parser = argparse.ArgumentParser(
