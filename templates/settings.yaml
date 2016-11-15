@@ -1,5 +1,24 @@
 # Configuration for slack-systemctl
-{% for keyword, unit in units.iteritems() %}
+
+# WARNING: Any changes (including additions and removals) of units or
+# allowed_commands require that you also update the sudoers
+# configuration. You can do this by running `make sudoers`,
+# open the sudoers file with `sudo visudo` and update the
+# relevant lines there with the output from `make sudoers`.
+# If you don't do this, the application will fail due to
+# insufficient rights, or it will have access to units or commands
+# which it should not have access to.
+# You may need to update a different file than what `visudo` opens by
+# default; check for potential files in `/etc/sudoers.d`.
+
+# WARNING: You must restart the slack-systemctl application for
+# changes to take effect. You can usually do this with
+# `sudo systemctl restart slack-systemctl`.
+
+
+{% for keyword, unit in units.items() -%}
+# Configuration for the unit {{ unit.unit }}:
+# The index is what messages must start with to trigger this (you may change it)
 {{ keyword }}:
   # Unit to interact with
   unit: "{{ unit.unit }}"
@@ -11,11 +30,16 @@
     {% endfor %}
   
   # Help message
+  {% if help -%}
   help: |
   {{ unit.help|indent(2, true) }}
-  
+  {% else -%}
+  help: ""
+  {% endif %}
   # Name of the Slack channel to restrain slack-systemctl requests to
   # (while you can initiate action through any channel in which the
   # bot is a member, its reply will be made on this channel, to ensure
   # nothing goes under the radar).
+  # Leave empty to answer wherever the original message was posted.
   slack_channel: "{{ unit.slack_channel }}"
+{% endfor %}
