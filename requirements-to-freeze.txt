@@ -1,0 +1,4 @@
+rtmbot
+Jinja2
+PyYAML
+requests

@@ -27,17 +27,17 @@ LOG_DIR = "/var/log/slack-systemctl"
 
 # Run/deploy slack-systemctl
 .PHONY: run
-run: settings.yaml settings_slackbot.yaml
+run: settings.yaml settings_slackbot.yaml venv/is_created
 	./confirm_is_run_as.sh $(TARGET_USER)
 	./confirm_file_permissions.sh
-	venv/bin/python slackbot/rtmbot.py -c settings_slackbot.yaml
+	. venv/bin/activate && rtmbot -c settings_slackbot.yaml
 
 # Configuration files, can be generated through helpful user interface
-settings.yaml settings_slackbot.yaml: | .installed_requirements
+settings.yaml settings_slackbot.yaml: | venv/is_created
 	venv/bin/python generate_settings_file.py "$@" --log-dir $(LOG_DIR)
 
 SYSTEMD_UNITFILE = slack-systemctl.service
-$(SYSTEMD_UNITFILE) : templates/$(SYSTEMD_UNITFILE) | .installed_requirements
+$(SYSTEMD_UNITFILE) : templates/$(SYSTEMD_UNITFILE) | venv/is_created
 	venv/bin/python generate_unit_file.py $(TARGET_USER) "$@"
 
 # Just test that make is run as root. Succeeds if it is, fails if not.
@@ -59,23 +59,18 @@ $(LOG_DIR): | is_root
 	chmod 755 $(LOG_DIR)
 
 # Virtual environment
-venv:
+venv/is_created:
 	virtualenv -p python3 venv
-
-# This file is used just to make sure we adopt to changes in 
-# requirements.txt. Whenever they change, we install the packages
-# again and touch this file, so its modified date is set to now.
-.installed_requirements: requirements.txt slackbot/requirements.txt | venv
+	touch venv/is_created
 	. venv/bin/activate && pip install -r requirements.txt
-	touch .installed_requirements
 
 # Make the application ready for deployment
 .PHONY: setup
-setup: .installed_requirements settings.yaml settings_slackbot.yaml
+setup: settings.yaml settings_slackbot.yaml
 	id -u $(TARGET_USER) > /dev/null 2>&1 || (echo "Setting up the user, which requires root privileges." && sudo adduser --system --no-create-home --group --disabled-login $(TARGET_USER))
 
 .PHONY: sudoers
-sudoers: .installed_requirements settings.yaml
+sudoers: venv/is_created settings.yaml
 	@venv/bin/python generate_sudoers_config.py $(TARGET_USER) `which systemctl`
 
 # Remove any local user-files from the folder
@@ -83,4 +78,8 @@ sudoers: .installed_requirements settings.yaml
 wipe:
 	rm -rf venv settings.yaml settings_slackbot.yaml .installed_requirements slack-systemctl.service
 
+
+.PHONY: freeze
+freeze: venv/is_created
+	. venv/bin/activate && pip freeze -r requirements-to-freeze.txt > requirements.txt
 
