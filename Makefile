@@ -84,3 +84,7 @@ wipe:
 	rm -rf venv settings.yaml settings_slackbot.yaml .installed_requirements slack-systemctl.service
 
 
+.PHONY: freeze
+freeze:
+	. venv/bin/activate && pip freeze -r requirements-to-freeze.txt > requirements.txt
+
