@@ -65,7 +65,7 @@ venv:
 # This file is used just to make sure we adopt to changes in 
 # requirements.txt. Whenever they change, we install the packages
 # again and touch this file, so its modified date is set to now.
-.installed_requirements: requirements.txt slackbot/requirements.txt | venv
+.installed_requirements: requirements.txt | venv
 	. venv/bin/activate && pip install -r requirements.txt
 	touch .installed_requirements
 
