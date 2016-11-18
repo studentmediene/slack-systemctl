@@ -12,4 +12,5 @@ DAEMON: false
 # Path to the logfile
 LOGFILE: "{{ logfile }}"
 
-LOGLEVEL: 30
+ACTIVE_PLUGINS:
+    - plugins.systemd.SystemD

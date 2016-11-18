@@ -30,7 +30,7 @@ LOG_DIR = "/var/log/slack-systemctl"
 run: settings.yaml settings_slackbot.yaml
 	./confirm_is_run_as.sh $(TARGET_USER)
 	./confirm_file_permissions.sh
-	venv/bin/python slackbot/rtmbot.py -c settings_slackbot.yaml
+	. venv/bin/activate && rtmbot -c settings_slackbot.yaml
 
 # Configuration files, can be generated through helpful user interface
 settings.yaml settings_slackbot.yaml: | .installed_requirements

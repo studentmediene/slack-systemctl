@@ -1,2 +1,3 @@
 -r slackbot/requirements.txt
+rtmbot
 jinja2
