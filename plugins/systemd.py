@@ -81,7 +81,7 @@ class SystemD(Plugin):
                 if data['text'].strip() in (keyword, keyword + ' help'):
                     # Print help
                     to_output.append("\n".join([
-                        "Usage: `%s [%s]`" % (keyword, '|'.join(unit['allowed_commands'])),
+                        "Usage: `%s [%s]`" % (keyword, '|'.join(unit['allowed_commands'] + ['help'])),
                         unit['help'],
                     ]))
                 else:
