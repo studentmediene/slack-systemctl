@@ -1,18 +1,47 @@
-# Slack systemd Control
-Control a unit file from Slack
+# slack-systemctl
+Control one or multiple SystemD unit files from Slack
+
+This project is affiliated with neither Slack Technologies, Inc. nor the SystemD
+project.
+
+Using slack-systemctl, you may restart a service from the comfort of Slack.
+It saves you the trouble of logging in through ssh and manually executing a
+command, and is especially useful if you don't have a computer handy.
+
+## Features
+
+* Let your team restart or check a service on the go, without having to pull
+  out a laptop.
+* Relatively easy to set up.
+* Can be used with any service in SystemD, old or new.
+* Define which services slack-systemctl shall have access to, and what
+  it can do with each of them (status, start, stop, restart).
+* Uses sudo to limit what can be done, so you don't need to give more
+  privileges than necessary.
+* Built-in support for help messages, if you don't remember how to use
+  a specific unit.
 
 ## Usage
 
 ### Setup
+
+The bot runs from the host on which the service(s) you want to control, run.
+You may run slack-systemctl from multiple computers (with the same user, even),
+but all messages will be parsed by all instances, so make sure you pick unique
+keywords.
+
+On the host:
 
 1. Run `git clone URL`.
 2. Run `cd slack-systemctl`.
 3. Run `make setup` and follow the prompts.
 4. Run `make sudoers`.
 5. Run `sudo visudo` and paste the output of the previous command somewhere in the configuration. Save and close.
-4. Run `sudo make deploy`.
-5. Run `sudo systemctl start slack-systemctl` to start the program
+6. Run `sudo make deploy`.
+7. Run `sudo systemctl start slack-systemctl` to start the program
    (it should start automatically on startup).
+8. Make sure you invite the Slack bot user to the channels you want it to participate in.
+   You can do so with the `/join` command in Slack.
 
 ### Changing the configuration
 

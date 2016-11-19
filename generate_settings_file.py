@@ -146,6 +146,8 @@ if choice == "settings.yaml":
 else:
     # SLACK
     print("Slack API Token?")
+    print("See https://api.slack.com/bot-users for information on bots.")
+    print("Go to https://my.slack.com/services/new/bot to create a new bot and obtain the Slack API Token.")
     choices['slack_token'] = input("> ")
 
     # LOGFILE
