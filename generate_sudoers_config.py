@@ -66,7 +66,7 @@ def parse_args():
 def main():
     args = parse_args()
     units = parse_config("settings.yaml")
-    print("Place the following somewhere in the sudoers file:\n")
+    print("# Configuration for slack-systemctl. Generated automatically by `sudo make deploy`.")
     print(get_command_alias(units, args['systemctl']))
     print(get_user_specification(args['user']))
 

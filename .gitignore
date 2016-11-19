@@ -99,3 +99,4 @@ ENV/
 /settings_slackbot.yaml
 .installed_requirements
 /slack-systemctl.service
+/slack-systemctl.sudoers

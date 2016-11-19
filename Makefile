@@ -23,7 +23,14 @@
 # User to run as
 TARGET_USER = slack-systemctl
 # Directory to write logs to
-LOG_DIR = "/var/log/slack-systemctl"
+LOG_DIR = "log"
+
+SYSTEMD_UNITFILE = slack-systemctl.service
+
+SUDOERS_FILENAME = slack-systemctl.sudoers
+
+SUDOERS_INSTALL_LOCATION = /etc/sudoers.d/$(SUDOERS_FILENAME)
+
 
 # Run/deploy slack-systemctl
 .PHONY: run
@@ -36,7 +43,6 @@ run: settings.yaml settings_slackbot.yaml venv/is_created
 settings.yaml settings_slackbot.yaml: | venv/is_created
 	venv/bin/python generate_settings_file.py "$@" --log-dir $(LOG_DIR)
 
-SYSTEMD_UNITFILE = slack-systemctl.service
 $(SYSTEMD_UNITFILE) : templates/$(SYSTEMD_UNITFILE) | venv/is_created
 	venv/bin/python generate_unit_file.py $(TARGET_USER) "$@"
 
@@ -50,7 +56,7 @@ is_root:
 	cp "$<" "$@"
 
 .PHONY: deploy
-deploy: /etc/systemd/system/$(SYSTEMD_UNITFILE) $(LOG_DIR) is_root
+deploy: /etc/systemd/system/$(SYSTEMD_UNITFILE) $(SUDOERS_INSTALL_LOCATION) $(LOG_DIR) is_root
 	systemctl enable $(SYSTEMD_UNITFILE)
 
 $(LOG_DIR): | is_root
@@ -66,12 +72,22 @@ venv/is_created:
 
 # Make the application ready for deployment
 .PHONY: setup
-setup: settings.yaml settings_slackbot.yaml
+setup: settings.yaml settings_slackbot.yaml $(SUDOERS_FILENAME)
 	id -u $(TARGET_USER) > /dev/null 2>&1 || (echo "Setting up the user, which requires root privileges." && sudo adduser --system --no-create-home --group --disabled-login $(TARGET_USER))
 
-.PHONY: sudoers
-sudoers: venv/is_created settings.yaml
-	@venv/bin/python generate_sudoers_config.py $(TARGET_USER) `which systemctl`
+# Sudoers file
+slack-systemctl.sudoers: venv/is_created settings.yaml
+	@venv/bin/python generate_sudoers_config.py $(TARGET_USER) `which systemctl` > $@
+
+$(SUDOERS_INSTALL_LOCATION): $(SUDOERS_FILENAME) | is_root
+	@# First make sure we're not about to override the default sudoers file.
+	@# Then check the syntax of the generated sudoers file.
+	@# Copy the generated sudoers file to the same folder as the target file.
+	@# Replace the target file in one atomic action (since they are in the same folder, they are on the same device).
+	test "$@" != "/etc/sudoers" && \
+	visudo -c -f "$<" && \
+	cp "$<" "$@.transfer" && \
+	mv "$@.transfer" "$@"
 
 # Remove any local user-files from the folder
 .PHONY: wipe

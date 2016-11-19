@@ -20,6 +20,8 @@ command, and is especially useful if you don't have a computer handy.
   privileges than necessary.
 * Built-in support for help messages, if you don't remember how to use
   a specific unit.
+* Only the unit file for `slack-systemctl` is installed globally,
+  the rest resides in the slack-systemctl folder.
 
 ## Usage
 
@@ -32,16 +34,20 @@ keywords.
 
 On the host:
 
-1. Run `git clone URL`.
+1. Run `git clone https://github.com/RadioRevolt/slack-systemctl.git`.
 2. Run `cd slack-systemctl`.
-3. Run `make setup` and follow the prompts.
-4. Run `make sudoers`.
-5. Run `sudo visudo` and paste the output of the previous command somewhere in the configuration. Save and close.
-6. Run `sudo make deploy`.
+3. Run `make setup` and follow the prompts to create the configuration files and the virtualenv.
+6. Run `sudo make deploy` to install and enable the slack-systemctl service.
 7. Run `sudo systemctl start slack-systemctl` to start the program
    (it should start automatically on startup).
 8. Make sure you invite the Slack bot user to the channels you want it to participate in.
    You can do so with the `/join` command in Slack.
+
+Note that the Makefile assumes that SystemD unit files are installed in
+`/etc/systemd/system`, and that
+Python3 and virtualenv is installed. You may encounter issues if this is not the case;
+you may try to adapt the Makefile or run the commands yourself. In either
+case, you are recommended to read up on the [GNU Make manual](https://www.gnu.org/software/make/manual/make.html).
 
 ### Changing the configuration
 

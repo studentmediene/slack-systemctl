@@ -25,12 +25,12 @@
 # Script to check that the current user does not have
 # write permission to the application (to reduce the
 # consequences of a compromise).
-APPLICATION_DIRS=". templates slackbot slackbot/plugins venv venv/bin"
+APPLICATION_DIRS=". templates plugins venv venv/bin"
 # Iterate through the directories listed above
 for d in $APPLICATION_DIRS
 do
     # Check whether the directory is writable
-    if test -w $d
+    if test -w "$d"
     then
         (>&2 echo "Error: directory $d is writable by `whoami`.")
         exit 1
@@ -39,8 +39,8 @@ do
     # Iterate through every file in this directory
     for f in $d/*
     do
-        # Check whether the file is writable
-        if test -w $f
+        # Check whether the file is writable (except ./log, which can be writable)
+        if test -w "$f" && test "$f" != "./log"
         then
             (>&2 echo "Error: file $f is writable by `whoami`.")
             exit 3
