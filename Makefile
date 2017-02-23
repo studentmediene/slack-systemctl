@@ -27,7 +27,7 @@ LOG_DIR = "log"
 
 SYSTEMD_UNITFILE = slack-systemctl.service
 
-SUDOERS_FILENAME = slack-systemctl.sudoers
+SUDOERS_FILENAME = slack-systemctl
 
 SUDOERS_INSTALL_LOCATION = /etc/sudoers.d/$(SUDOERS_FILENAME)
 
@@ -88,6 +88,8 @@ $(SUDOERS_INSTALL_LOCATION): $(SUDOERS_FILENAME) | is_root
 	visudo -c -f "$<" && \
 	cp "$<" "$@.transfer" && \
 	mv "$@.transfer" "$@"
+	@# Remove sudoers file from local folder, so it does not clutter it
+	rm $(SUDOERS_FILENAME)
 
 # Remove any local user-files from the folder
 .PHONY: wipe

@@ -6,7 +6,6 @@ requests==2.11.1
 docutils==0.12
 lockfile==0.12.2
 MarkupSafe==0.23
-pkg-resources==0.0.0
 python-daemon==2.1.2
 six==1.10.0
 slackclient==1.0.2

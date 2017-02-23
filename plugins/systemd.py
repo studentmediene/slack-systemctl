@@ -25,6 +25,7 @@ SOFTWARE.
 import yaml
 import requests
 import subprocess
+import logging
 
 from rtmbot.core import Plugin
 
@@ -41,26 +42,22 @@ def parse_config(configfile, slackbotfile):
     return {keyword.lower(): properties for keyword, properties in units.items()}, token
 
 
-def send_to_slack(message, channel):
-    if channel:
-        options = {
-            "as_user": True,
-            "channel": channel,
-            "token": TOKEN,
-            "text": message,
-        }
-        r = requests.get("https://slack.com/api/chat.postMessage", params=options,
-                         timeout=10.0)
-        r.raise_for_status()
-        r.close()
-    else:
-        outputs.append(message)
+def send_to_slack(self, message, channel):
+    options = {
+        "as_user": True,
+        "channel": channel,
+        "token": TOKEN,
+        "text": message,
+    }
+    r = requests.get("https://slack.com/api/chat.postMessage", params=options,
+    		 timeout=10.0)
+    r.raise_for_status()
+    r.close()
 
 
 UNITS, TOKEN = parse_config("settings.yaml", "settings_slackbot.yaml")
 
 
-outputs = []
 
 KEYWORDS = list(UNITS.keys())
 
@@ -68,6 +65,7 @@ KEYWORDS = list(UNITS.keys())
 class SystemD(Plugin):
 
     def process_message(self, data):
+        logging.debug("SystemD plugin is handling message '%s'." % data['text'])
         global outputs
         to_output = []
         channel = ""
@@ -78,6 +76,7 @@ class SystemD(Plugin):
             if keyword in KEYWORDS:
                 unit = UNITS[keyword]
                 channel = unit['slack_channel']
+                logging.debug("Matched message with unit '%s'" % keyword)
                 # Was any command given, other than help?
                 if data['text'].strip() in (keyword, keyword + ' help'):
                     # Print help
@@ -119,8 +118,14 @@ class SystemD(Plugin):
                     else:
                         to_output.append("Did not recognize %s.\nWrite `%s help` for"
                                          " usage." % (command, keyword))
+            else:
+                logging.info(data['text'] + " does not start with any of " + str(KEYWORDS))
         except Exception as e:
             # Make sure we output the error on Slack
+            logging.warn("An error occurred: %s" % str(e))
             to_output.append(str(e))
+        if not channel:
+            channel = data['channel']
         for text in to_output:
-            send_to_slack(text, channel)
+            logging.debug("Sending string '%s' to Slack on channel '%s'" % (text, channel))
+            send_to_slack(self, text, channel)
