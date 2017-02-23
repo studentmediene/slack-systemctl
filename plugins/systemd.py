@@ -119,7 +119,7 @@ class SystemD(Plugin):
                         to_output.append("Did not recognize %s.\nWrite `%s help` for"
                                          " usage." % (command, keyword))
             else:
-                logging.info(data['text'] + " does not start with any of " + str(KEYWORDS))
+                logging.debug(data['text'] + " does not start with any of " + str(KEYWORDS))
         except Exception as e:
             # Make sure we output the error on Slack
             logging.warn("An error occurred: %s" % str(e))
