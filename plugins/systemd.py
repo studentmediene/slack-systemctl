@@ -78,7 +78,7 @@ class SystemD(Plugin):
                 channel = unit['slack_channel']
                 logging.debug("Matched message with unit '%s'" % keyword)
                 # Was any command given, other than help?
-                if data['text'].strip() in (keyword, keyword + ' help'):
+                if data['text'].lower().strip() in (keyword, keyword + ' help'):
                     # Print help
                     to_output.append("\n".join([
                         "Usage: `%s [%s]`" % (keyword, '|'.join(unit['allowed_commands'] + ['help'])),
