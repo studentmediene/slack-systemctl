@@ -20,7 +20,7 @@ command, and is especially useful if you don't have a computer handy.
   privileges than necessary.
 * Built-in support for help messages, if you don't remember how to use
   a specific unit.
-* Only the unit file for `slack-systemctl` is installed globally,
+* Only the unit file and the sudoers file for `slack-systemctl` is installed globally,
   the rest resides in the slack-systemctl folder.
 
 ## Usage
@@ -44,7 +44,7 @@ On the host:
    You can do so with the `/join` command in Slack.
 
 Note that the Makefile assumes that SystemD unit files are installed in
-`/etc/systemd/system`, and that
+`/etc/systemd/system`, sudoers files in `/etc/sudoers.d` and that
 Python3 and virtualenv is installed. You may encounter issues if this is not the case;
 you may try to adapt the Makefile or run the commands yourself. In either
 case, you are recommended to read up on the [GNU Make manual](https://www.gnu.org/software/make/manual/make.html).
@@ -54,8 +54,8 @@ case, you are recommended to read up on the [GNU Make manual](https://www.gnu.or
 1. Change the configuration file(s) (not the ones in templates).
 2. Update the sudoers file if you changed what units and commands are permitted:
    
-   1. Run `make sudoers`.
-   2. Run `sudo visudo` and replace the existing section on slack-systemctl with the output of the previous command. Save and close.
+   1. Run `make setup`.
+   2. Run `sudo make deploy`.
 3. Restart the application: `sudo systemctl restart slack-systemctl`
 
 ### Slack-usage
