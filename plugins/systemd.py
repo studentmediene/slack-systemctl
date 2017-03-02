@@ -92,7 +92,7 @@ class SystemD(Plugin):
                         # Warning: Make sure you update generate_sudoers_config.py if you
                         # make changes to the following line. Any changes must then be applied
                         # manually by the user to the sudoers file when deploying.
-                        final_cmd = ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command, unit['unit']]
+                        final_cmd = ["sudo", "--non-interactive", "systemctl", "--no-ask-password", command] +  unit['unit'].split()
                         try:
                             # Run the command
                             result = subprocess.check_output(
