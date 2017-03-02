@@ -76,7 +76,7 @@ setup: settings.yaml settings_slackbot.yaml $(SUDOERS_FILENAME)
 	id -u $(TARGET_USER) > /dev/null 2>&1 || (echo "Setting up the user, which requires root privileges." && sudo adduser --system --no-create-home --group --disabled-login $(TARGET_USER))
 
 # Sudoers file
-slack-systemctl.sudoers: venv/is_created settings.yaml
+$(SUDOERS_FILENAME): venv/is_created settings.yaml
 	@venv/bin/python generate_sudoers_config.py $(TARGET_USER) `which systemctl` > $@
 
 $(SUDOERS_INSTALL_LOCATION): $(SUDOERS_FILENAME) | is_root
